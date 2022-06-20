@@ -329,16 +329,15 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
                     $meta = $this->get_queried_object_meta($meta_key);
                     $value = isset($meta['address']) ? $meta['address'] : '';
                     break;
-
-                default:
-                    $value = get_post_meta(get_the_ID(), $meta_key, true);
-                    break;
             } // End switch().
+            if ($value === '' || empty($value)) {
+                $value = get_post_meta(get_the_ID(), $meta_key, true);
+            }
         } else {
+
             // Field settings has been deleted or not available.
             $value = get_field($meta_key);
         } // End if().
-
         echo wp_kses_post($value);
     }
 
