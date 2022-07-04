@@ -111,27 +111,6 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
     }
 
     /**
-     * Get the `group fields` to show in elementor
-     *
-     * @return array
-     */
-    public static function get_control_options()
-    {
-        $groups = acf_get_field_groups(array('post_id' => get_the_ID()));
-        $group_fields = [];
-        foreach ($groups as $group) {
-            $fields = acf_get_fields($group["key"]);
-            foreach ($fields as $field) {
-                if ($field['type'] === 'group') {
-                }
-            }
-        }
-
-        error_log(var_export($group_fields, true));
-        return;
-    }
-
-    /**
      * @param array $types
      *
      * @return array
@@ -146,6 +125,8 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
         }
 
         $groups = [];
+        /* Dummy group variable so that our added groups show in after title */
+        $groups_dummy = [];
 
         $options_page_groups_ids = [];
 
@@ -188,7 +169,7 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
 
                 //Modified for groups
                 if ($field['type'] === 'group') {
-                    self::generating_group_options($field, $types, [$field['name']], $options);
+                    $groups_dummy[] = self::generating_group_options($field, $types, [$field['name']], $groups_dummy);
                 }
 
                 if (!in_array($field['type'], $types, true)) {
@@ -199,7 +180,10 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
                 $options[$key] = $field['label'];
             }
 
-            if (empty($options)) {
+            /**
+             * Putting it before options check as options can be empty here.
+             */
+            if (empty($groups_dummy) && empty($options)) {
                 continue;
             }
 
@@ -211,6 +195,7 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
                 'label' => $acf_group['title'],
                 'options' => $options,
             ];
+            $groups = array_merge($groups, $groups_dummy);
         } // End foreach().
 
         return $groups;
@@ -222,18 +207,22 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
      * @param array $fields
      * @param array $types
      * @param array $group_names
-     * @param array &$options
+     * @param array &$groups passing groups by reference for nested groups.
      * 
-     * @return array $options
+     * @return array $group [
+     *  'label' => string,
+     *   'options' => array,
+     * ]
      */
-    private static function generating_group_options(array $group_field, array $types, array $group_names, array &$options)
+    private static function generating_group_options(array $group_field, array $types, array $group_names, array &$groups)
     {
+        $options = [];
         foreach ($group_field['sub_fields'] as $field) {
 
             //check if field is group for nested groups.
             if ($field['type'] === 'group') {
                 $group_names[] = $field['name'];
-                self::generating_group_options($field, $types, $group_names, $options);
+                $groups[] = self::generating_group_options($field, $types, $group_names, $groups);
             }
 
             if (!in_array($field['type'], $types, true)) {
@@ -243,6 +232,10 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
             $key = $field['key'] . ':' . join("_", $group_names) . "_" . $field['name'];
             $options[$key] = $field['label'];
         }
+        return array(
+            'label' => $field['name'],
+            'options' => $options,
+        );
     }
 
     public function get_supported_fields()
