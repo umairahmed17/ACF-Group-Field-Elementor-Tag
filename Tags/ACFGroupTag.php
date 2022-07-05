@@ -233,7 +233,7 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
             $options[$key] = $field['label'];
         }
         return array(
-            'label' => $field['name'],
+            'label' => $group_field['label'],
             'options' => $options,
         );
     }
