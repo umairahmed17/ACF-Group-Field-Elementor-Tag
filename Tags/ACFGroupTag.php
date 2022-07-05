@@ -125,8 +125,6 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
         }
 
         $groups = [];
-        /* Dummy group variable so that our added groups show in after title */
-        $groups_dummy = [];
 
         $options_page_groups_ids = [];
 
@@ -144,6 +142,8 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
         }
 
         foreach ($acf_groups as $acf_group) {
+            /* Dummy group variable so that our added groups show in after title */
+            $groups_dummy = [];
             // ACF >= 5.0.0
             if (function_exists('acf_get_fields')) {
                 if (isset($acf_group['ID']) && !empty($acf_group['ID'])) {
@@ -195,7 +195,10 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
                 'label' => $acf_group['title'],
                 'options' => $options,
             ];
-            $groups = array_merge($groups, $groups_dummy);
+
+            if (!empty($groups_dummy)) {
+                $groups = array_merge($groups, $groups_dummy);
+            }
         } // End foreach().
 
         return $groups;
