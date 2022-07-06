@@ -281,6 +281,17 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
     {
         list($field, $meta_key) = Module::get_tag_value_field($this);
 
+        /**
+         * ACF is returning default value.
+         * Checking if ACF returned default value so we can check to see if value actually occurs for group field.
+         */
+        if ($field['value'] === acf_format_value($field['default_value'], get_the_ID(), $field)) {
+            $value = get_field($meta_key);
+        }
+        if ($value !== null) {
+            $field['value'] = $value;
+        }
+
         if ($field && !empty($field['type'])) {
             $value = $field['value'];
 
