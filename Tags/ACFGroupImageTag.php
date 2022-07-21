@@ -107,6 +107,14 @@ class ACFGroupImageTag extends \Elementor\Core\DynamicTags\Data_Tag
                 'groups' => self::modified_get_control_options($this->get_supported_fields()),
             ]
         );
+
+        $this->add_control(
+            'fallback',
+            [
+                'label' => esc_html__('Fallback', 'elementor-pro'),
+                'type' => Controls_Manager::MEDIA,
+            ]
+        );
     }
 
     /**
