@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 }
 //Exit if accessed directly
 
-class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
+class ACFGroupImageTag extends \Elementor\Core\DynamicTags\Data_Tag
 
 {
 
@@ -28,7 +28,7 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
      */
     public function get_name()
     {
-        return 'acf_group_tag';
+        return 'acf_group_image_tag';
     }
 
     /**
@@ -45,7 +45,7 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
      */
     public function get_title()
     {
-        return __('ACF Group Fields');
+        return __('ACF Group Image Fields');
     }
 
     /**
@@ -80,8 +80,7 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
     public function get_categories()
     {
         return [
-            Module::TEXT_CATEGORY,
-            Module::POST_META_CATEGORY,
+            Module::IMAGE_CATEGORY,
         ];
     }
 
@@ -244,129 +243,79 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
     public function get_supported_fields()
     {
         return [
-            'text',
-            'textarea',
-            'number',
-            'email',
-            'password',
-            'wysiwyg',
-            'select',
-            'checkbox',
-            'radio',
-            'true_false',
-
             //Image,
             'image',
 
-            // Pro
-            'oembed',
-            'google_map',
-            'date_picker',
-            'time_picker',
-            'date_time_picker',
-            'color_picker',
         ];
     }
 
     /**
-     * Render
+     * Return Value
      *
-     * Prints out the value of the Dynamic tag
+     * returns the value of the Dynamic tag
      *
      * @access public
      *
      *
      * @since 3.1.12
      *
-     * @return void
+     * @return array
      */
-    public function render()
+    public function get_value(array $options = [])
     {
+        $image_data = [
+            'id' => null,
+            'url' => '',
+        ];
+
         list($field, $meta_key) = Module::get_tag_value_field($this);
 
-        /**
-         * ACF is returning default value.
-         * Checking if ACF returned default value so we can check to see if value actually occurs for group field.
-         */
-        if ($field['value'] === acf_format_value($field['default_value'], get_the_ID(), $field)) {
-            $value = get_field($meta_key);
-        }
-        if ($value !== null) {
-            $field['value'] = $value;
-        }
-
-        if ($field && !empty($field['type'])) {
-            $value = $field['value'];
-
-            switch ($field['type']) {
-                case 'radio':
-                    if (isset($field['choices'][$value])) {
-                        $value = $field['choices'][$value];
-                    }
+        if ($field && is_array($field)) {
+            $field['return_format'] = isset($field['save_format']) ? $field['save_format'] : $field['return_format'];
+            switch ($field['return_format']) {
+                case 'object':
+                case 'array':
+                    $value = $field['value'];
                     break;
-                case 'select':
-                    // Use as array for `multiple=true` or `return_format=array`.
-                    $values = (array) $value;
-
-                    foreach ($values as $key => $item) {
-                        if (isset($field['choices'][$item])) {
-                            $values[$key] = $field['choices'][$item];
-                        }
-                    }
-
-                    $value = implode(', ', $values);
-
+                case 'url':
+                    $value = [
+                        'id' => 0,
+                        'url' => $field['value'],
+                    ];
                     break;
-                case 'checkbox':
-                    $value = (array) $value;
-                    $values = [];
-                    foreach ($value as $item) {
-                        if (isset($field['choices'][$item])) {
-                            $values[] = $field['choices'][$item];
-                        } else {
-                            $values[] = $item;
-                        }
-                    }
-
-                    $value = implode(', ', $values);
-
+                case 'id':
+                    $src = wp_get_attachment_image_src($field['value'], $field['preview_size']);
+                    $value = [
+                        'id' => $field['value'],
+                        'url' => $src[0],
+                    ];
                     break;
-                case 'oembed':
-                    // Get from db without formatting.
-                    $value = $this->get_queried_object_meta($meta_key);
-                    break;
-                case 'google_map':
-                    $meta = $this->get_queried_object_meta($meta_key);
-                    $value = isset($meta['address']) ? $meta['address'] : '';
-                    break;
-            } // End switch().
-            if ($value === '' || empty($value)) {
-                $value = get_post_meta(get_the_ID(), $meta_key, true);
             }
-        } else {
+        }
 
+        if (!isset($value)) {
             // Field settings has been deleted or not available.
             $value = get_field($meta_key);
-        } // End if().
-        echo wp_kses_post($value);
-    }
-
-    /**
-     * Get the value of the `meta_key` or `acf meta key`
-     *
-     * @param string $meta_key
-     * @return string
-     */
-    private function get_queried_object_meta($meta_key)
-    {
-        $value = '';
-        if (is_singular()) {
-            $value = get_post_meta(get_the_ID(), $meta_key, true);
-        } elseif (is_tax() || is_category() || is_tag()) {
-            $value = get_term_meta(get_queried_object_id(), $meta_key, true);
+        }
+        if ($value === false) {
+            $id = get_post_meta(get_the_ID(), $meta_key, true);
+            $src = wp_get_attachment_image_src($id, $field['preview_size']);
+            $value = [
+                'id' => $field['value'],
+                'url' => $src[0],
+            ];
         }
 
-        return $value;
+        if (empty($value) && $this->get_settings('fallback')) {
+            $value = $this->get_settings('fallback');
+        }
+
+        if (!empty($value) && is_array($value)) {
+            $image_data['id'] = $value['id'];
+            $image_data['url'] = $value['url'];
+        }
+
+        return $image_data;
     }
 
 

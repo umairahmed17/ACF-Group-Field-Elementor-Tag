@@ -210,9 +210,11 @@ final class ElementorExtensionACFGroup
     public function register_tags($dynamic_tags)
     {
         require_once __DIR__ . '/Tags/ACFGroupTag.php';
+        require_once __DIR__ . '/Tags/ACFGroupImageTag.php';
 
         // Register Tags
         $dynamic_tags->register_tag(new Tags\ACFGroupTag());
+        $dynamic_tags->register_tag(new Tags\ACFGroupImageTag());
     }
 
     /**
