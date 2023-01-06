@@ -122,6 +122,8 @@ final class ElementorExtensionACFGroup
         if ($this->is_compatible()) {
             add_action('elementor/init', [$this, 'init']);
         }
+
+		return false;
     }
 
     /**
@@ -153,6 +155,12 @@ final class ElementorExtensionACFGroup
             add_action('admin_notices', [$this, 'admin_notice_minimum_php_version']);
             return false;
         }
+
+		// Check if elementor pro is available
+//		if (!did_action("elementor_pro/init")){
+//			add_action('admin_notices', [$this, 'admin_notice_missing_elementor_pro']);
+//			return false;
+//		}
 
         return true;
     }
@@ -235,7 +243,7 @@ final class ElementorExtensionACFGroup
         $message = sprintf(
             /* translators: 1: Plugin name 2: Elementor */
             esc_html__('"%1$s" requires "%2$s" to be installed and activated.', 'custom-elementor-widget'),
-            '<strong>' . esc_html__('Elementor Test Extension', 'custom-elementor-widget') . '</strong>',
+            '<strong>' . esc_html__('Elementor ACF Group Extension', 'custom-elementor-widget') . '</strong>',
             '<strong>' . esc_html__('Elementor', 'custom-elementor-widget') . '</strong>'
         );
 
@@ -260,7 +268,7 @@ final class ElementorExtensionACFGroup
         $message = sprintf(
             /* translators: 1: Plugin name 2: Elementor 3: Required Elementor version */
             esc_html__('"%1$s" requires "%2$s" version %3$s or greater.', 'custom-elementor-widget'),
-            '<strong>' . esc_html__('Elementor Test Extension', 'custom-elementor-widget') . '</strong>',
+            '<strong>' . esc_html__('Elementor ACF Group Extension', 'custom-elementor-widget') . '</strong>',
             '<strong>' . esc_html__('Elementor', 'custom-elementor-widget') . '</strong>',
             self::MINIMUM_ELEMENTOR_VERSION
         );
@@ -286,13 +294,39 @@ final class ElementorExtensionACFGroup
         $message = sprintf(
             /* translators: 1: Plugin name 2: PHP 3: Required PHP version */
             esc_html__('"%1$s" requires "%2$s" version %3$s or greater.', 'custom-elementor-widget'),
-            '<strong>' . esc_html__('Elementor Test Extension', 'custom-elementor-widget') . '</strong>',
+            '<strong>' . esc_html__('Elementor ACF Group Extension', 'custom-elementor-widget') . '</strong>',
             '<strong>' . esc_html__('PHP', 'custom-elementor-widget') . '</strong>',
             self::MINIMUM_PHP_VERSION
         );
 
         printf('<div class="notice notice-warning is-dismissible"><p>%1$s</p></div>', $message);
     }
+
+	/**
+	 * Admin notice
+	 *
+	 * Warning when the site doesn't have a elementor pro required.
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 */
+	public function admin_notice_missing_elementor_pro()
+	{
+
+		if (isset($_GET['activate'])) {
+			unset($_GET['activate']);
+		}
+
+		$message = sprintf(
+		/* translators: 1: Plugin name 2: PHP 3: Required PHP version */
+			esc_html__('"%1$s" requires "%2$s".', 'custom-elementor-widget'),
+			'<strong>' . esc_html__('Elementor ACF Group Extension', 'custom-elementor-widget') . '</strong>',
+			'<strong>' . esc_html__('Elementor Pro', 'custom-elementor-widget') . '</strong>',
+			self::MINIMUM_PHP_VERSION
+		);
+
+		printf('<div class="notice notice-warning is-dismissible"><p>%1$s</p></div>', $message);
+	}
 }
 
 ElementorExtensionACFGroup::instance();
