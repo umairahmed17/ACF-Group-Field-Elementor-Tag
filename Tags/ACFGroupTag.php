@@ -254,9 +254,7 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
             'checkbox',
             'radio',
             'true_false',
-
-            //Image,
-            'image',
+	        'url',
 
             // Pro
             'oembed',
@@ -348,6 +346,7 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
             // Field settings has been deleted or not available.
             $value = get_field($meta_key);
         } // End if().
+
         echo wp_kses_post($value);
     }
 
