@@ -82,6 +82,7 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
         return [
             Module::TEXT_CATEGORY,
             Module::POST_META_CATEGORY,
+            Module::URL_CATEGORY,
         ];
     }
 
