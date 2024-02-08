@@ -151,6 +151,15 @@ class ACFURLTag extends \Elementor\Core\DynamicTags\Data_Tag
 	{
 		list($field, $meta_key) = Module::get_tag_value_field($this);
 
+		/**
+		 * ACF is returning default field value in $field['value']
+		 * If a value actually has been set for this group field, use it instead of the default value.
+		 */
+		$value = get_field($meta_key);
+		if ($value !== null) {
+			$field['value'] = $value;
+		}
+
 		if ($field) {
 			$value = $field['value'];
 
