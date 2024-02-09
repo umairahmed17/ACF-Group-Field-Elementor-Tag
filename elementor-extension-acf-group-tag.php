@@ -5,6 +5,7 @@
  * Description: Unlock group acf fields in dynamic tags in elementor.
  * Author URI: https://github.com/umairahmed17
  * Author: Umair Ahmed
+ * Version: 0.1
  */
 
 /**
