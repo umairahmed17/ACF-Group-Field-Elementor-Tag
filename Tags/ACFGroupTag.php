@@ -286,10 +286,10 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
          * ACF is returning default value.
          * Checking if ACF returned default value so we can check to see if value actually occurs for group field.
          */
-        if ($field['value'] === acf_format_value($field['default_value'], get_the_ID(), $field)) {
+        if (isset($field['default_value']) && $field['value'] === acf_format_value($field['default_value'], get_the_ID(), $field)) {
             $value = get_field($meta_key);
         }
-        if ($value !== null) {
+        if (isset($value) && $value !== null) {
             $field['value'] = $value;
         }
 
