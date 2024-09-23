@@ -222,10 +222,12 @@ class ACFGroupTag extends \Elementor\Core\DynamicTags\Tag
         $options = [];
         foreach ($group_field['sub_fields'] as $field) {
 
-            //check if field is group for nested groups.
+            // Check if field is a group for nested groups.
             if ($field['type'] === 'group') {
-                $group_names[] = $field['name'];
-                $groups[] = self::generating_group_options($field, $types, $group_names, $groups);
+	            $nested_group_names = array_merge($group_names, [$field['name']]);
+	            $groups[] = self::generating_group_options($field, $types, $nested_group_names, $groups);
+
+	            continue;
             }
 
             if (!in_array($field['type'], $types, true)) {
